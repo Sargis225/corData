@@ -14,10 +14,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
-    let appDelegate = UIApplication.shared.delegate as? AppDelegate
+//    let appDelegate = UIApplication.shared.delegate as? AppDelegate
     var allPlayers:[Player]?
-    var newPlayer:Player!
-    var context:NSManagedObjectContext?
+//    var newPlayer:Player!
+    var context:NSManagedObjectContext!
     
     
     
@@ -25,9 +25,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewDidLoad()
         playersTableView.delegate = self
         playersTableView.dataSource = self
-        context = appDelegate?.persistentContainer.viewContext
-        allPlayers = try? context?.fetch(request)
-        newPlayer = Player(context: context!)
+        if let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext {
+            self.context = context
+            allPlayers = try? context.fetch(request)
+        } else {
+            fatalError("can not create context")
+        }
+        
+//        newPlayer = Player(context: context!)
 //        allPlayers?.removeAll()
         // Do any additional setup after loading the view.
     }
@@ -85,8 +90,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //            context = self.appDelegate?.persistentContainer.viewContext
 //            self.allPlayers = try? context?.fetch(request)
 //            newPlayer = Player(context: context!)
-            self.allPlayers?.remove(at: indexPath.row)
+        
+            guard let player = self.allPlayers?.remove(at: indexPath.row) else { return }
             self.playersTableView.reloadData()
+            self.context?.delete(player)
             try? self.context?.save()
 //            print(allPlayers?.count)
         }
@@ -97,10 +104,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //    var alertController:UIAlertController!
     
     @IBAction func addPlayerPressed(_ sender: UIButton) {
-        context = appDelegate?.persistentContainer.viewContext
-        allPlayers = try? context?.fetch(request)
-        newPlayer = Player(context: context!)
-        let alertController = UIAlertController(title: "Change", message: "aaaa", preferredStyle: .alert)
+
+        let alertController = UIAlertController(title: "Add new player", message: "Write name", preferredStyle: .alert)
         alertController.addTextField { (textField) -> Void in
                 textField.textColor = UIColor.black
             }
@@ -108,13 +113,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
         }
         let nextAction: UIAlertAction = UIAlertAction(title: "Add", style: .default) { action -> Void in
-            let text = alertController.textFields?.first?.text ?? ""
-            if alertController.textFields?.first?.text == "" {
-                alertController.title = "greq tmi anuny"
-                return
-            }
-            self.newPlayer.name = text
-            self.allPlayers?.append(self.newPlayer)
+            guard let text = alertController.textFields?.first?.text, text != "" else { return }
+
+            let newPlayer = Player(context: self.context)
+            newPlayer.name = text
+            self.allPlayers?.append(newPlayer)
             self.playersTableView.reloadData()
             try? self.context?.save()
         }
