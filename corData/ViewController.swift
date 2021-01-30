@@ -10,7 +10,7 @@ import CoreData
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var playersTableView: UITableView!
     
-    var indexRowCount = 0
+//    var indexRowCount = 0
     
     
     let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
@@ -25,18 +25,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewDidLoad()
         playersTableView.delegate = self
         playersTableView.dataSource = self
-//        playersTableView.reloadData()
-        
         context = appDelegate?.persistentContainer.viewContext
         allPlayers = try? context?.fetch(request)
         newPlayer = Player(context: context!)
-//        print(allPlayers)
-        allPlayers?.removeAll()
+//        allPlayers?.removeAll()
         // Do any additional setup after loading the view.
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return allPlayers?.count ?? 0
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -46,15 +43,63 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let ident = "cellIdent"
         let cell = tableView.dequeueReusableCell(withIdentifier: ident) as! MyTableViewCell
-        if allPlayers?.count == 0 {
-            return cell
-        }
-        cell.textLabel?.text = allPlayers?[0].name ?? ""
+        cell.textLabel?.text = allPlayers?[indexPath.row].name ?? ""
         return cell
     }
     
-   
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        playersTableView.reloadData()6yd
+//    }
+    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        context = appDelegate?.persistentContainer.viewContext
+//        allPlayers = try? context?.fetch(request)
+//        newPlayer = Player(context: context!)
+       let alertController = UIAlertController(title: "Change", message: "aaaa", preferredStyle: .alert)
+        alertController.addTextField { (textField) -> Void in
+                textField.textColor = UIColor.black
+            }
+        let cell = tableView.cellForRow(at: indexPath) as! MyTableViewCell
+        alertController.textFields?.first?.text = cell.textLabel?.text ?? ""
+        let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
+            
+        }
+        let nextAction: UIAlertAction = UIAlertAction(title: "Change", style: .default) { action -> Void in
+            let text = alertController.textFields?.first?.text ?? ""
+            for i in self.allPlayers! {
+                if i.name == cell.textLabel?.text {
+                    i.name = text
+                }
+            }
+            self.playersTableView.reloadData()
+        }
+        alertController.addAction(nextAction)
+        alertController.addAction(alertActionTwo)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(style: .normal, title: "delate") { [self] (action, view, handler) in
+//            context = self.appDelegate?.persistentContainer.viewContext
+//            self.allPlayers = try? context?.fetch(request)
+//            newPlayer = Player(context: context!)
+            self.allPlayers?.remove(at: indexPath.row)
+            self.playersTableView.reloadData()
+            try? self.context?.save()
+//            print(allPlayers?.count)
+        }
+        
+        return UISwipeActionsConfiguration(actions: [action])
+    }
+    
+//    var alertController:UIAlertController!
+    
     @IBAction func addPlayerPressed(_ sender: UIButton) {
+        context = appDelegate?.persistentContainer.viewContext
+        allPlayers = try? context?.fetch(request)
+        newPlayer = Player(context: context!)
         let alertController = UIAlertController(title: "Change", message: "aaaa", preferredStyle: .alert)
         alertController.addTextField { (textField) -> Void in
                 textField.textColor = UIColor.black
@@ -62,20 +107,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
             
         }
-        let nextAction: UIAlertAction = UIAlertAction(title: "Add", style: .destructive) { action -> Void in
+        let nextAction: UIAlertAction = UIAlertAction(title: "Add", style: .default) { action -> Void in
             let text = alertController.textFields?.first?.text ?? ""
+            if alertController.textFields?.first?.text == "" {
+                alertController.title = "greq tmi anuny"
+                return
+            }
             self.newPlayer.name = text
             self.allPlayers?.append(self.newPlayer)
             self.playersTableView.reloadData()
-            print(self.allPlayers![0].name ?? "")
-            try? self.self.context?.save()
+            try? self.context?.save()
         }
         alertController.addAction(nextAction)
         alertController.addAction(alertActionTwo)
-        indexRowCount += 1
         present(alertController, animated: true, completion: nil)
-        print(allPlayers)
-
+        
     }
     
     
