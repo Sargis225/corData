@@ -17,6 +17,8 @@
 		527B6EAF25C417F800AFD1CC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 527B6EAD25C417F800AFD1CC /* LaunchScreen.storyboard */; };
 		527B6EBA25C417F800AFD1CC /* corDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527B6EB925C417F800AFD1CC /* corDataTests.swift */; };
 		527B6EC525C417F800AFD1CC /* corDataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527B6EC425C417F800AFD1CC /* corDataUITests.swift */; };
+		52C952EB25C805E900AA1743 /* CrewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C952EA25C805E900AA1743 /* CrewViewController.swift */; };
+		52C952F025C8066A00AA1743 /* CrewTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C952EF25C8066A00AA1743 /* CrewTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		527B6EC025C417F800AFD1CC /* corDataUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = corDataUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		527B6EC425C417F800AFD1CC /* corDataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = corDataUITests.swift; sourceTree = "<group>"; };
 		527B6EC625C417F800AFD1CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		52C952EA25C805E900AA1743 /* CrewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrewViewController.swift; sourceTree = "<group>"; };
+		52C952EF25C8066A00AA1743 /* CrewTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrewTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +112,8 @@
 				527B6EA125C417F500AFD1CC /* SceneDelegate.swift */,
 				527B6EA325C417F500AFD1CC /* ViewController.swift */,
 				527B6EA525C417F500AFD1CC /* Main.storyboard */,
+				52C952EF25C8066A00AA1743 /* CrewTableViewCell.swift */,
+				52C952EA25C805E900AA1743 /* CrewViewController.swift */,
 				527B6EAB25C417F800AFD1CC /* Assets.xcassets */,
 				527B6EAD25C417F800AFD1CC /* LaunchScreen.storyboard */,
 				527B6EB025C417F800AFD1CC /* Info.plist */,
@@ -265,6 +271,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				527B6EA425C417F500AFD1CC /* ViewController.swift in Sources */,
+				52C952EB25C805E900AA1743 /* CrewViewController.swift in Sources */,
+				52C952F025C8066A00AA1743 /* CrewTableViewCell.swift in Sources */,
 				527B6EA025C417F500AFD1CC /* AppDelegate.swift in Sources */,
 				527B6EAA25C417F500AFD1CC /* corData.xcdatamodeld in Sources */,
 				5205F58C25C446FF00673B09 /* MyTableViewCell.swift in Sources */,

@@ -14,12 +14,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
-//    let appDelegate = UIApplication.shared.delegate as? AppDelegate
     var allPlayers:[Player]?
-//    var newPlayer:Player!
     var context:NSManagedObjectContext!
-    
-    
+    var selectedPlayers:[Player] = []
+//    var newCrew:Crew!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,10 +30,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         } else {
             fatalError("can not create context")
         }
-        
-//        newPlayer = Player(context: context!)
-//        allPlayers?.removeAll()
-        // Do any additional setup after loading the view.
+        playersTableView.allowsMultipleSelection = true
+        playersTableView.allowsMultipleSelectionDuringEditing = true
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -52,59 +49,53 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        playersTableView.reloadData()6yd
-//    }
-    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        context = appDelegate?.persistentContainer.viewContext
-//        allPlayers = try? context?.fetch(request)
-//        newPlayer = Player(context: context!)
-       let alertController = UIAlertController(title: "Change", message: "aaaa", preferredStyle: .alert)
-        alertController.addTextField { (textField) -> Void in
-                textField.textColor = UIColor.black
-            }
-        let cell = tableView.cellForRow(at: indexPath) as! MyTableViewCell
-        alertController.textFields?.first?.text = cell.textLabel?.text ?? ""
-        let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
-            
-        }
-        let nextAction: UIAlertAction = UIAlertAction(title: "Change", style: .default) { action -> Void in
-            let text = alertController.textFields?.first?.text ?? ""
-            for i in self.allPlayers! {
-                if i.name == cell.textLabel?.text {
-                    i.name = text
-                }
-            }
-            self.playersTableView.reloadData()
-        }
-        alertController.addAction(nextAction)
-        alertController.addAction(alertActionTwo)
-        present(alertController, animated: true, completion: nil)
+        selectedPlayers.append(allPlayers![indexPath.row])
+//        print(selectedPlayers)
     }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        selectedPlayers.remove(at: indexPath.row)
+//        print(selectedPlayers)
+
+    }
+    
+    
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "delate") { [self] (action, view, handler) in
-//            context = self.appDelegate?.persistentContainer.viewContext
-//            self.allPlayers = try? context?.fetch(request)
-//            newPlayer = Player(context: context!)
-        
             guard let player = self.allPlayers?.remove(at: indexPath.row) else { return }
             self.playersTableView.reloadData()
             self.context?.delete(player)
             try? self.context?.save()
-//            print(allPlayers?.count)
         }
-        
-        return UISwipeActionsConfiguration(actions: [action])
+        let renameAction = UIContextualAction(style: .normal, title: "remove") { (action, view, handler) in
+            let alertController = UIAlertController(title: "Change", message: "aaaa", preferredStyle: .alert)
+            alertController.addTextField { (textField) -> Void in
+                textField.textColor = UIColor.black
+            }
+            let cell = tableView.cellForRow(at: indexPath) as! MyTableViewCell
+            alertController.textFields?.first?.text = cell.textLabel?.text ?? ""
+            let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
+                
+            }
+            let nextAction: UIAlertAction = UIAlertAction(title: "Change", style: .default) { action -> Void in
+                let text = alertController.textFields?.first?.text ?? ""
+                
+                self.allPlayers![indexPath.row].name = text
+                try? self.context.save()
+                self.playersTableView.reloadData()
+            }
+            alertController.addAction(nextAction)
+            alertController.addAction(alertActionTwo)
+            self.present(alertController, animated: true, completion: nil)
+        }
+        return UISwipeActionsConfiguration(actions: [action, renameAction])
     }
     
-//    var alertController:UIAlertController!
     
     @IBAction func addPlayerPressed(_ sender: UIButton) {
-
         let alertController = UIAlertController(title: "Add new player", message: "Write name", preferredStyle: .alert)
         alertController.addTextField { (textField) -> Void in
                 textField.textColor = UIColor.black
@@ -114,7 +105,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         let nextAction: UIAlertAction = UIAlertAction(title: "Add", style: .default) { action -> Void in
             guard let text = alertController.textFields?.first?.text, text != "" else { return }
-
             let newPlayer = Player(context: self.context)
             newPlayer.name = text
             self.allPlayers?.append(newPlayer)
@@ -124,8 +114,56 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         alertController.addAction(nextAction)
         alertController.addAction(alertActionTwo)
         present(alertController, animated: true, completion: nil)
+    }
+    
+    
+    @IBAction func addCrewPressed(_ sender: UIButton) {
+        let alertController = UIAlertController(title: "Write the name of the team", message: "", preferredStyle: .alert)
+        alertController.addTextField { (textField) -> Void in
+                textField.textColor = UIColor.black
+            }
+        let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
+            
+        }
+        let nextAction: UIAlertAction = UIAlertAction(title: "AddNewTeam", style: .default) { action -> Void in
+            guard let text = alertController.textFields?.first?.text, text != "" else { return }
+            let newCrew = Crew(context: self.context)
+            newCrew.teamName = ""
+            guard self.selectedPlayers.count > 0 else { return }
+            for i in self.selectedPlayers {
+                newCrew.playersSet?.adding(i)
+            }
+            for i in self.selectedPlayers {
+//                newCrew.playersSet?.adding(i)
+                newCrew.addToPlayersSet(i)
+                newCrew.teamName = text
+            }
+            try? self.context.save()
+            self.playersTableView.reloadData()
+            print(newCrew.playersSet)
+        }
+        alertController.addAction(nextAction)
+        alertController.addAction(alertActionTwo)
+        present(alertController, animated: true, completion: nil)
         
     }
+//    var set:NSSet!
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+////        if let vc = segue.destination as? CrewViewController {
+////            vc.crew = newCrew
+////            vc.context = context
+////            vc.set = set
+////        }
+//    }
+//
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 //    @IBAction func renamePlayer(_ sender: UIButton) {
