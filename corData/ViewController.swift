@@ -7,7 +7,7 @@
 
 import UIKit
 import CoreData
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController {
     @IBOutlet var playersTableView: UITableView!
     
 //    var indexRowCount = 0
@@ -16,20 +16,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
     var allPlayers:[Player]?
     var context:NSManagedObjectContext!
-    var selectedPlayers:[Player] = []
 //    var newCrew:Crew!
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        playersTableView.delegate = self
-        playersTableView.dataSource = self
+        configureTabeleView()
         if let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext {
             self.context = context
             allPlayers = try? context.fetch(request)
         } else {
             fatalError("can not create context")
         }
+        
+    }
+    
+    func configureTabeleView() {
+        playersTableView.delegate = self
+        playersTableView.dataSource = self
         playersTableView.allowsMultipleSelection = true
         playersTableView.allowsMultipleSelectionDuringEditing = true
     }
@@ -38,30 +42,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return allPlayers?.count ?? 0
     }
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let ident = "cellIdent"
         let cell = tableView.dequeueReusableCell(withIdentifier: ident) as! MyTableViewCell
         cell.textLabel?.text = allPlayers?[indexPath.row].name ?? ""
         return cell
     }
-    
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedPlayers.append(allPlayers![indexPath.row])
-//        print(selectedPlayers)
-    }
-    
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        selectedPlayers.remove(at: indexPath.row)
-//        print(selectedPlayers)
-
-    }
-    
-    
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "delate") { [self] (action, view, handler) in
@@ -125,18 +111,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let alertActionTwo = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
             
         }
-        let nextAction: UIAlertAction = UIAlertAction(title: "AddNewTeam", style: .default) { action -> Void in
+        let nextAction: UIAlertAction = UIAlertAction(title: "Add New Team", style: .default) { action -> Void in
             guard let text = alertController.textFields?.first?.text, text != "" else { return }
             let newCrew = Crew(context: self.context)
-            newCrew.teamName = ""
-            guard self.selectedPlayers.count > 0 else { return }
-            for i in self.selectedPlayers {
-                newCrew.playersSet?.adding(i)
-            }
-            for i in self.selectedPlayers {
-//                newCrew.playersSet?.adding(i)
-                newCrew.addToPlayersSet(i)
-                newCrew.teamName = text
+            newCrew.teamName = text
+            
+            guard let selectedIndexs = self.playersTableView.indexPathsForSelectedRows else { return }
+            for i in selectedIndexs {
+                newCrew.addToPlayersSet((self.allPlayers?[i.row])!)
             }
             try? self.context.save()
             self.playersTableView.reloadData()
@@ -147,60 +129,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         present(alertController, animated: true, completion: nil)
         
     }
-//    var set:NSSet!
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-////        if let vc = segue.destination as? CrewViewController {
-////            vc.crew = newCrew
-////            vc.context = context
-////            vc.set = set
-////        }
-//    }
-//
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-//    @IBAction func renamePlayer(_ sender: UIButton) {
-//        let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
-//        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-//        let context = appDelegate?.persistentContainer.viewContext
-//        let allPlayers = try? context?.fetch(request)
-//        print(allPlayers!)
-////        for i in allPlayers! {
-////            i.name = playerNameTextField.text ?? ""
-////            i.score = Int16(scoreTextField.text ?? "") ?? 0
-////            print(i.name ?? "")
-////            print(i.score)
-////            i.score += 1
-////        }
-//       try?  context?.save()
-//
-//    }
-//
-//
-//    @IBAction func delatePlayerPressed(_ sender: UIButton) {
-//        let request:NSFetchRequest<Player> = NSFetchRequest<Player>(entityName: "Player")
-//        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-//        let context = appDelegate?.persistentContainer.viewContext
-//        var allPlayers = try? context?.fetch(request)
-//        allPlayers?.removeAll()
-////        for i in allPlayers! {
-////            if  i.name == ""  {
-////                context?.delete(i)
-////            }
-////        }
-//        try? context?.save()
-//
-//    }
-    
-    
-    
-    
 }
 
+// MARK: UITableViewDelegate
+extension ViewController: UITableViewDelegate {
+    
+}
+// MARK: UITableViewDataSource
+extension ViewController: UITableViewDataSource {
+    
+}

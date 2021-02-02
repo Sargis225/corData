@@ -23,10 +23,10 @@ class CrewViewController: UIViewController, UITableViewDelegate, UITableViewData
         if let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext {
             self.context = context
             crew = try! self.context.fetch(request)
-            for i in 0...crew.count - 1 {
-                print(crew[i].score)
-                
-            }
+//            for i in 0...crew.count - 1 {
+//                print(crew[i].score)
+//                
+//            }
         } else {
             fatalError("can not create context")
         }
@@ -39,32 +39,21 @@ class CrewViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return crew.count
     }
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let ident = "crewCellIdent"
         let cell = tableView.dequeueReusableCell(withIdentifier: ident) as! CrewTableViewCell
-        cell.textLabel?.backgroundColor = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
         cell.textLabel?.textAlignment = .center
         cell.textLabel?.text = crew[indexPath.row].teamName ?? ""
         return cell
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        crew[0].playersSet
+//        for i in crew[indexPath.row].playersSet?.count! {
+//            print(i)
+//        }
+        
     }
-
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
